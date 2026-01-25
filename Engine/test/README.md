@@ -1,5 +1,3 @@
-# Verification Specification: Topology
-
 ## 1. Sampling Space Definition
 
 Let $\mathcal{G}_{gen}$ be a stochastic process that produces a directed graph $G = (V, E)$.
