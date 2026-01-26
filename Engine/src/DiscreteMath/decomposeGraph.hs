@@ -1,9 +1,10 @@
-module DiscreteMath where
+module DiscreteMath (decomposeGraph) where
 
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import qualified Data.Sequence as Seq
 import Data.Sequence (ViewL(..), (|>), viewl)
+import Data.List (foldl')
 import Domain.Types
 
 decomposeGraph :: ComputationalGraph -> (Set.Set EdgeIdentifier, Set.Set EdgeIdentifier)
@@ -23,7 +24,7 @@ decomposeGraph graph@(ComputationalGraph adjMap)
     getAllEdgeIds (ComputationalGraph m) = Set.fromList [ edgeIdentifier e | edges <- Map.elems m, e <- edges ]
 
 
-bfs :: Seq.Seq NodeIdentifier -> Set.Set NodeIdentifier -> Set.Set EdgeIdentifier -> Set.Set EdgeIdentifier
+    bfs :: Seq.Seq NodeIdentifier -> Set.Set NodeIdentifier -> Set.Set EdgeIdentifier -> Set.Set EdgeIdentifier
     bfs queue visited accTreeEdges =
         case viewl queue of
             EmptyL -> accTreeEdges
@@ -32,7 +33,8 @@ bfs :: Seq.Seq NodeIdentifier -> Set.Set NodeIdentifier -> Set.Set EdgeIdentifie
                 let 
                     neighbors = Map.findWithDefault [] u adjMap
                     
-                    (newQueue, newVisited, newTreeEdges) = foldl (expandFrontier) (restQueue, visited, accTreeEdges) neighbors
+                    (newQueue, newVisited, newTreeEdges) = 
+                        foldl' expandFrontier (restQueue, visited, accTreeEdges) neighbors
                 in 
                     bfs newQueue newVisited newTreeEdges
 
