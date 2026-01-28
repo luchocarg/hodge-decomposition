@@ -13,7 +13,7 @@ main = do
     
     MapSpec.tests
 
-   putStrLn "\n----------------------------------------"
+    putStrLn "\n----------------------------------------"
 
     GenSpec.tests
 
