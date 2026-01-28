@@ -55,8 +55,8 @@ tests :: IO ()
 tests = do
     putStrLn "\n[DiscreteMath.TreePath] Verifying Navigation..."
     
-    putStrLn "  1. Universal Reachability"
+    putStrLn "  Universal Reachability"
     quickCheck $ forAll genConnectedGraph prop_pathExistence
     
-    putStrLn "  2. Path Continuity"
+    putStrLn "  Path Continuity"
     quickCheck $ forAll genConnectedGraph prop_pathContinuity

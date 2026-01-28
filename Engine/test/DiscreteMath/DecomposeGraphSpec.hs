@@ -4,7 +4,7 @@ import Test.QuickCheck
 import qualified Data.Set as Set
 import qualified Data.Map.Strict as Map
 import Domain.Types
-import Common.Generators (genConnectedGraph)
+import Common.Generators (genConnectedGraph, genGraphWithConfig, defaultGenConfig)
 import DiscreteMath.DecomposeGraph (decomposeGraph)
 
 prop_partitionConservation :: ComputationalGraph -> Property
@@ -46,11 +46,11 @@ tests :: IO ()
 tests = do
     putStrLn "\n[DiscreteMath.Decompose] Verifying Logic..."
     
-    putStrLn "Conservation"
-    quickCheck $ forAll genConnectedGraph prop_partitionConservation
+    putStrLn "Conservation of Mass"
+    quickCheck $ forAll (genGraphWithConfig defaultGenConfig) prop_partitionConservation
     
     putStrLn "Orthogonality"
-    quickCheck $ forAll genConnectedGraph prop_disjointSets
+    quickCheck $ forAll (genGraphWithConfig defaultGenConfig) prop_disjointSets
     
-    putStrLn "Spanning Property"
+    putStrLn "Spanning Tree Property"
     quickCheck $ forAll genConnectedGraph prop_isSpanningTree

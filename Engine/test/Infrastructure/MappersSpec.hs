@@ -73,8 +73,8 @@ tests :: IO ()
 tests = do
     putStrLn "\n[Infrastructure.Mappers] Verifying Boundary..."
     
-    putStrLn "  1. Roundtrip Integrity (Domain -> DTO -> Domain)"
+    putStrLn "  Roundtrip Integrity (Domain -> DTO -> Domain)"
     quickCheck $ forAll genConnectedGraph prop_mapperRoundtrip
     
-    putStrLn "  2. SourceNode Consistency"
+    putStrLn "  SourceNode Consistency"
     quickCheck $ forAll genConnectedGraph prop_sourceNodeIntegrity

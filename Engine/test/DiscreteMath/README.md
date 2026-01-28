@@ -2,19 +2,17 @@
 
 ## 1. Topological Decomposition ($\delta$)
 
-Let $\delta$ be the deterministic decomposition operator acting on the valid graph space $\mathcal{G}$. The operator performs a topological sort to partition the edge set $E$ into two orthogonal subspaces:
+Let $\delta$ be the deterministic decomposition operator acting on the valid graph space $\mathcal{G}$. The operator performs a global Breadth-First Search to partition the edge set $E$ into two orthogonal subspaces:
 
 $$\delta: G \to (E_T, E_C)$$
 
-Where the input $G = (V, E, f)$ is transformed into a tuple of edge sets:
-
 ### Components
 1.  **Spanning Manifold ($E_T$):**
-    The set of **Tree Edges** that constitutes the acyclic skeleton of the graph. This subspace defines the **Gradient Field** (Potential).
-    $$E_T \subset E \quad \text{s.t.} \quad (V, E_T) \text{ is a Spanning Tree}$$
+    The set of **Tree Edges** that constitutes the acyclic skeleton of the graph. For disconnected graphs, this forms a **Spanning Forest**. This defines the **Gradient Field**.
+    $$E_T \subset E \quad \text{s.t.} \quad (V, E_T) \text{ is acyclic}$$
 
 2.  **Cyclic Chords ($E_C$):**
-    The set of **Back Edges** (or Cotree) that close loops in the topology. This subspace defines the **Rotational Field** (Curl).
+    The set of **Back Edges** (or Cotree) that close loops. This defines the **Rotational Field**.
     $$E_C = E \setminus E_T$$
 
 ---
