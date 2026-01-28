@@ -23,6 +23,7 @@ type PotentialValue = Double
 
 data InternalEdge = InternalEdge {
     edgeIdentifier :: EdgeIdentifier,
+    sourceNode :: NodeIdentifier,
     destinationNode :: NodeIdentifier,
     currentFlow :: FlowAmount
 } deriving (Show, Eq)

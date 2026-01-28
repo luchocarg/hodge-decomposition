@@ -21,6 +21,7 @@ toComputationalGraph dto =
                 
                 newInternalEdge = Dom.InternalEdge {
                     Dom.edgeIdentifier = edgeId,
+                    Dom.sourceNode = u,
                     Dom.destinationNode = v,
                     Dom.currentFlow = amount
                 }

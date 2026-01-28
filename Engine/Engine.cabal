@@ -14,8 +14,7 @@ library
       ContinuousMath.Gauss
       ContinuousMath.Stokes
       DiscreteMath.DecomposeGraph
-      DiscreteMath.SpanningTree
-      DiscreteMath.TransversalGraph
+      DiscreteMath.TreePath
       Domain.Types
       Infrastructure.JsonDto
       Infrastructure.Mappers
@@ -29,4 +28,27 @@ library
     , base >=4.7 && <5
     , bytestring
     , containers
+  default-language: Haskell2010
+
+test-suite Engine-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Common.Generators
+      Common.GeneratorsSpec
+      DiscreteMath.DecomposeGraphSpec
+      DiscreteMath.TreePathSpec
+      Infrastructure.MappersSpec
+      Paths_Engine
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      Engine
+    , QuickCheck
+    , aeson
+    , base >=4.7 && <5
+    , bytestring
+    , containers
+    , random
   default-language: Haskell2010

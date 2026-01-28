@@ -8,6 +8,7 @@ module Common.Generators
 import Test.QuickCheck
 import qualified Data.Map.Strict as Map
 import Domain.Types
+import qualified Data.Set as Set
 
 -- Config
 
@@ -44,7 +45,7 @@ genGraphWithConfig config = do
 
     skeleton <- genLinearSpanningTree nodes
 
-    noise <- genCycleEdges nodes (density config)
+    noise <- genCycleEdges nodes (density config) skeleton
     
     let topology = skeleton ++ noise
     
@@ -62,16 +63,23 @@ genNodeUniverse minN maxN = do
 genLinearSpanningTree :: [NodeIdentifier] -> Gen [RawEdge]
 genLinearSpanningTree nodes = do
     shuffled <- shuffle nodes
-    return $ zip shuffled (tail shuffled)
+    return $ zip shuffled (drop 1 shuffled)
 
-genCycleEdges :: [NodeIdentifier] -> Double -> Gen [RawEdge]
-genCycleEdges nodes dens = do
-    let maxPossibleEdges = length nodes * 2
+genCycleEdges :: [NodeIdentifier] -> Double -> [RawEdge] -> Gen [RawEdge]
+genCycleEdges nodes dens existingEdges = do
+    let maxPossibleEdges = length nodes * (length nodes - 1)
     let noiseCount = floor $ fromIntegral maxPossibleEdges * dens
-    vectorOf noiseCount $ do
+    
+    let existingSet = Set.fromList existingEdges
+    
+    candidates <- vectorOf (noiseCount * 2) $ do
         u <- elements nodes
         v <- elements nodes
         return (u, v)
+        
+    let validNoise = filter (\(u,v) -> u /= v && not (Set.member (u,v) existingSet)) candidates
+    
+    return $ take noiseCount validNoise
 
 generateDomainEdges :: (Double, Double) -> [RawEdge] -> Gen [(NodeIdentifier, InternalEdge)]
 generateDomainEdges range rawEdges = 
@@ -81,6 +89,7 @@ generateDomainEdges range rawEdges =
         f <- choose range
         let edge = InternalEdge {
             edgeIdentifier = EdgeIdentifier idx,
+            sourceNode = u,
             destinationNode = v,
             currentFlow = f
         }
