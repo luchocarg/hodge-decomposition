@@ -5,7 +5,13 @@ import qualified Common.GeneratorsSpec as GenSpec
 import qualified DiscreteMath.DecomposeGraphSpec as DecomposeSpec
 import qualified DiscreteMath.TreePathSpec as PathSpec
 
+import qualified ContinuousMath.GaussSpec as GaussSpec
+import qualified ContinuousMath.StokesSpec as StokesSpec
+import qualified ContinuousMath.DecompositionSpec as DecompSpec
+-- import qualified ContinuousMath.PotentialSpec as PotSpec
+
 import qualified Infrastructure.MappersSpec as MapSpec
+import qualified MainSpec as IntegrationSpec
 
 main :: IO ()
 main = do
@@ -22,5 +28,16 @@ main = do
     DecomposeSpec.tests
     PathSpec.tests
 
+    putStrLn "\n----------------------------------------"
+
+    GaussSpec.tests
+    StokesSpec.tests
+    DecompSpec.tests
+    -- PotSpec.tests
+
+    putStrLn "\n----------------------------------------"
+
+    IntegrationSpec.tests
+
     putStrLn "\n════════════════════════════════════════"
-    putStrLn "All right"
+    putStrLn "\nAll right"

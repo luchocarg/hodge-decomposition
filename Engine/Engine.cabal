@@ -12,6 +12,7 @@ library
   exposed-modules:
       ContinuousMath.Decomposition
       ContinuousMath.Gauss
+      ContinuousMath.Potential
       ContinuousMath.Stokes
       DiscreteMath.DecomposeGraph
       DiscreteMath.TreePath
@@ -36,9 +37,14 @@ test-suite Engine-test
   other-modules:
       Common.Generators
       Common.GeneratorsSpec
+      ContinuousMath.DecompositionSpec
+      ContinuousMath.GaussSpec
+      ContinuousMath.PotentialSpec
+      ContinuousMath.StokesSpec
       DiscreteMath.DecomposeGraphSpec
       DiscreteMath.TreePathSpec
       Infrastructure.MappersSpec
+      MainSpec
       Paths_Engine
   hs-source-dirs:
       test

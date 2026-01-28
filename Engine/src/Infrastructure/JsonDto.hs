@@ -1,6 +1,4 @@
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE DerivingStrategies #-}
 
 module Infrastructure.JsonDto where
 
@@ -11,11 +9,12 @@ import Data.Char (toLower)
 cleanPrefixOptions :: String -> Options
 cleanPrefixOptions prefix = defaultOptions { 
     fieldLabelModifier = \fieldName -> 
-        let dropped = drop (length prefix) fieldName
-        in (toLower (head dropped) : tail dropped)
+        case drop (length prefix) fieldName of
+            (c:cs) -> toLower c : cs
+            []     -> []
 }
 
--- DTOs INPUT
+-- INPUT DTOs
 
 data IncomingEdgeDto = IncomingEdgeDto {
     incomingEdgeId :: Int,
@@ -27,6 +26,9 @@ data IncomingEdgeDto = IncomingEdgeDto {
 instance FromJSON IncomingEdgeDto where
     parseJSON = genericParseJSON (cleanPrefixOptions "incomingEdge")
 
+instance ToJSON IncomingEdgeDto where
+    toJSON = genericToJSON (cleanPrefixOptions "incomingEdge")
+
 data IncomingGraphDto = IncomingGraphDto {
     incomingGraphNodes :: [Int],
     incomingGraphEdges :: [IncomingEdgeDto]
@@ -35,7 +37,10 @@ data IncomingGraphDto = IncomingGraphDto {
 instance FromJSON IncomingGraphDto where
     parseJSON = genericParseJSON (cleanPrefixOptions "incomingGraph")
 
--- DTOs OUTPUT
+instance ToJSON IncomingGraphDto where
+    toJSON = genericToJSON (cleanPrefixOptions "incomingGraph")
+
+-- OUTPUT DTOs
 
 data OutgoingEdgeResultDto = OutgoingEdgeResultDto {
     outgoingEdgeResultId :: Int,
