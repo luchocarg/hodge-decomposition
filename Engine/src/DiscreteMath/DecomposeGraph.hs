@@ -1,5 +1,5 @@
-module DiscreteMath (decomposeGraph) where
-
+module DiscreteMath.DecomposeGraph (decomposeGraph) where
+    
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import qualified Data.Sequence as Seq
