@@ -7,29 +7,29 @@ module Common.Generators
 
 import Test.QuickCheck
 import qualified Data.Map.Strict as Map
-import Domain.Types
 import qualified Data.Set as Set
+import Domain.Types
 
 -- Config
 
 data GraphGenConfig = GraphGenConfig {
-    minNodes :: Int,
-    maxNodes :: Int,
-    density  :: Double, -- 0.0 a 1.0
+    minNodes  :: Int,
+    maxNodes  :: Int,
+    density   :: Double, -- 0.0 a 1.0
     flowRange :: (Double, Double)
 } deriving (Show, Eq)
 
 defaultGenConfig :: GraphGenConfig
 defaultGenConfig = GraphGenConfig {
-    minNodes = 2,
-    maxNodes = 20,
-    density  = 0.3,
+    minNodes  = 2,
+    maxNodes  = 20,
+    density   = 0.3,
     flowRange = (-100.0, 100.0)
 }
 
 type RawEdge = (NodeIdentifier, NodeIdentifier)
 
--- Public API
+-- public api
 
 instance Arbitrary ComputationalGraph where
     arbitrary = genGraphWithConfig defaultGenConfig
@@ -37,7 +37,7 @@ instance Arbitrary ComputationalGraph where
 genConnectedGraph :: Gen ComputationalGraph
 genConnectedGraph = arbitrary
 
--- Pipeline
+-- pipeline
 
 genGraphWithConfig :: GraphGenConfig -> Gen ComputationalGraph
 genGraphWithConfig config = do
@@ -53,7 +53,7 @@ genGraphWithConfig config = do
 
     return $ buildGraph nodes weightedEdges
 
--- Primitives
+-- primitives
 
 genNodeUniverse :: Int -> Int -> Gen [NodeIdentifier]
 genNodeUniverse minN maxN = do
@@ -68,18 +68,17 @@ genLinearSpanningTree nodes = do
 genCycleEdges :: [NodeIdentifier] -> Double -> [RawEdge] -> Gen [RawEdge]
 genCycleEdges nodes dens existingEdges = do
     let maxPossibleEdges = length nodes * (length nodes - 1)
-    let noiseCount = floor $ fromIntegral maxPossibleEdges * dens
+    let targetNoiseCount = floor $ fromIntegral maxPossibleEdges * dens
     
     let existingSet = Set.fromList existingEdges
     
-    candidates <- vectorOf (noiseCount * 2) $ do
-        u <- elements nodes
-        v <- elements nodes
-        return (u, v)
-        
-    let validNoise = filter (\(u,v) -> u /= v && not (Set.member (u,v) existingSet)) candidates
+    let allPossiblePairs = [ (u, v) | u <- nodes, v <- nodes, u /= v ]
     
-    return $ take noiseCount validNoise
+    let candidatePairs = filter (\edge -> not (Set.member edge existingSet)) allPossiblePairs
+    
+    shuffledCandidates <- shuffle candidatePairs
+    
+    return $ take targetNoiseCount shuffledCandidates
 
 generateDomainEdges :: (Double, Double) -> [RawEdge] -> Gen [(NodeIdentifier, InternalEdge)]
 generateDomainEdges range rawEdges = 
@@ -95,7 +94,7 @@ generateDomainEdges range rawEdges =
         }
         return (u, edge)
 
--- Build
+-- build
 
 buildGraph :: [NodeIdentifier] -> [(NodeIdentifier, InternalEdge)] -> ComputationalGraph
 buildGraph nodes edgeList = ComputationalGraph $

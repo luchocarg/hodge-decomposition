@@ -54,6 +54,18 @@ prop_noSelfLoops (ComputationalGraph m) =
         counterexample ("Self-loops detected at nodes: " ++ show (map fst badNodes)) $
             null badNodes
 
+
+prop_noMultiEdges :: ComputationalGraph -> Property
+prop_noMultiEdges (ComputationalGraph m) =
+    let 
+        allEdges = concat (Map.elems m)
+        rawPairs = map (\e -> (sourceNode e, destinationNode e)) allEdges
+        uniquePairs = Set.fromList rawPairs
+    in
+        counterexample ("Multi-edges detected, count: " ++ show (length rawPairs) ++ " Unique: " ++ show (Set.size uniquePairs)) $
+            length rawPairs == Set.size uniquePairs
+
+
 -- BFS
 
 getReachableNodesUndirected :: NodeIdentifier -> ComputationalGraph -> Set.Set NodeIdentifier
@@ -100,3 +112,4 @@ tests = do
     
     putStrLn "  Topological Simplicity"
     quickCheck $ forAll genConnectedGraph prop_noSelfLoops
+    quickCheck $ forAll genConnectedGraph prop_noMultiEdges
