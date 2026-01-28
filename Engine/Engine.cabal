@@ -31,6 +31,29 @@ library
     , containers
   default-language: Haskell2010
 
+executable Engine
+  main-is: Main.hs
+  other-modules:
+      ContinuousMath.Decomposition
+      ContinuousMath.Gauss
+      ContinuousMath.Potential
+      ContinuousMath.Stokes
+      DiscreteMath.DecomposeGraph
+      DiscreteMath.TreePath
+      Domain.Types
+      Infrastructure.JsonDto
+      Infrastructure.Mappers
+      Paths_Engine
+  hs-source-dirs:
+      src
+  build-depends:
+      Engine
+    , aeson
+    , base >=4.7 && <5
+    , bytestring
+    , containers
+  default-language: Haskell2010
+
 test-suite Engine-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs

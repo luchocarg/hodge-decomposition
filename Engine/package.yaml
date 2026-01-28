@@ -9,6 +9,13 @@ dependencies:
 library:
   source-dirs: src
 
+executables:
+  Engine:
+    main:                Main.hs
+    source-dirs:         src
+    dependencies:
+      - Engine
+
 tests:
   Engine-test:
     main:                Spec.hs
