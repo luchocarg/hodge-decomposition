@@ -112,4 +112,6 @@ tests = do
     
     putStrLn "  Topological Simplicity"
     quickCheck $ forAll genConnectedGraph prop_noSelfLoops
+
+    putStrLn "  Simple Graph"
     quickCheck $ forAll genConnectedGraph prop_noMultiEdges
