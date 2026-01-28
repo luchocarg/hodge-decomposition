@@ -13,14 +13,14 @@ main = do
     
     MapSpec.tests
 
+   putStrLn "\n----------------------------------------"
+
+    GenSpec.tests
+
     putStrLn "\n----------------------------------------"
 
     DecomposeSpec.tests
     PathSpec.tests
-    
-    putStrLn "\n----------------------------------------"
-
-    GenSpec.tests
 
     putStrLn "\n════════════════════════════════════════"
     putStrLn "All right"
