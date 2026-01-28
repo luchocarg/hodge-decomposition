@@ -8,7 +8,7 @@ import qualified DiscreteMath.TreePathSpec as PathSpec
 import qualified ContinuousMath.GaussSpec as GaussSpec
 import qualified ContinuousMath.StokesSpec as StokesSpec
 import qualified ContinuousMath.DecompositionSpec as DecompSpec
--- import qualified ContinuousMath.PotentialSpec as PotSpec
+import qualified ContinuousMath.PotentialSpec as PotSpec
 
 import qualified Infrastructure.MappersSpec as MapSpec
 import qualified MainSpec as IntegrationSpec
@@ -33,7 +33,7 @@ main = do
     GaussSpec.tests
     StokesSpec.tests
     DecompSpec.tests
-    -- PotSpec.tests
+    PotSpec.tests
 
     putStrLn "\n----------------------------------------"
 

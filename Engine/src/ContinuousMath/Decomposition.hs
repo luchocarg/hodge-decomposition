@@ -1,48 +1,47 @@
-{-# LANGUAGE StrictData #-}
-
 module ContinuousMath.Decomposition (
     decompose
 ) where
 
 import qualified Data.Map.Strict as Map
 import qualified Domain.Types as Dom
-import qualified DiscreteMath.DecomposeGraph as Topo
 import qualified ContinuousMath.Gauss as Gauss
 import qualified ContinuousMath.Stokes as Stokes
+import qualified ContinuousMath.Potential as Potential
 
--- Helmholtz-Hodge decomposition.
 decompose :: Dom.ComputationalGraph -> Dom.SimulationResult
 decompose graph@(Dom.ComputationalGraph adjMap) = 
     let 
-        (treeEdges, cotreeEdges) = Topo.decomposeGraph graph
+        divMap = Gauss.calculateDivergences graph
         
-        rotationalMap = Stokes.calculateRotationalFlow treeEdges cotreeEdges
+        potentialMap = Potential.solvePotentials graph divMap
         
-        -- Superposition Theorem
         allEdges = concat (Map.elems adjMap)
+
+        rotationalMap = Stokes.calculateRotationalFlow allEdges potentialMap
         
         calcEdgeResult :: Dom.InternalEdge -> Dom.CalculatedEdgeResult
         calcEdgeResult edge = 
             let 
                 eid = Dom.edgeIdentifier edge
-                totalF = Dom.currentFlow edge
+                u = Dom.sourceNode edge
+                v = Dom.destinationNode edge
                 
-                rotF = Map.findWithDefault 0.0 eid rotationalMap
+                phi_u = Map.findWithDefault 0.0 u potentialMap
+                phi_v = Map.findWithDefault 0.0 v potentialMap
                 
-                gradF = totalF - rotF
+                gradF = phi_u - phi_v
+                rotF  = Map.findWithDefault 0.0 eid rotationalMap
             in 
                 Dom.CalculatedEdgeResult eid gradF rotF
 
         edgeResults = map calcEdgeResult allEdges
-
-        divMap = Gauss.calculateDivergences graph
         
         calcNodeResult :: Dom.NodeIdentifier -> Dom.CalculatedNodeResult
         calcNodeResult nid = 
             Dom.CalculatedNodeResult 
                 { Dom.resultNodeIdentifier = nid
                 , Dom.divergenceValue = Map.findWithDefault 0.0 nid divMap
-                , Dom.potentialValue = 0.0 -- TODO: Integrate gradient for visual potential
+                , Dom.potentialValue = Map.findWithDefault 0.0 nid potentialMap
                 }
 
         nodeResults = map calcNodeResult (Map.keys adjMap)
