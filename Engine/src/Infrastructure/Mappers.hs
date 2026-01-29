@@ -53,6 +53,10 @@ toOutgoingDto domainResult = Dto.OutgoingSimulationResultDto {
     toEdgeDto :: Dom.CalculatedEdgeResult -> Dto.OutgoingEdgeResultDto
     toEdgeDto er = Dto.OutgoingEdgeResultDto {
         Dto.outgoingEdgeResultId = let (Dom.EdgeIdentifier i) = Dom.resultEdgeIdentifier er in i,
+        
+        Dto.outgoingEdgeResultSource = let (Dom.NodeIdentifier s) = Dom.resultSource er in s,
+        Dto.outgoingEdgeResultTarget = let (Dom.NodeIdentifier t) = Dom.resultTarget er in t,
+        
         Dto.outgoingEdgeResultGradient = Dom.gradientComponent er,
         Dto.outgoingEdgeResultRotational = Dom.rotationalComponent er
     }

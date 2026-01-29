@@ -36,6 +36,8 @@ newtype ComputationalGraph = ComputationalGraph (Map NodeIdentifier [InternalEdg
 
 data CalculatedEdgeResult = CalculatedEdgeResult {
     resultEdgeIdentifier :: EdgeIdentifier,
+    resultSource :: NodeIdentifier,
+    resultTarget :: NodeIdentifier,
     gradientComponent :: FlowAmount,
     rotationalComponent :: FlowAmount
 } deriving (Show, Eq)

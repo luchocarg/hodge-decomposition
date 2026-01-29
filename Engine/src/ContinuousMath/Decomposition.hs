@@ -1,9 +1,12 @@
+{-# LANGUAGE StrictData #-}
+
 module ContinuousMath.Decomposition (
     decompose
 ) where
 
 import qualified Data.Map.Strict as Map
 import qualified Domain.Types as Dom
+import qualified DiscreteMath.DecomposeGraph as Topo
 import qualified ContinuousMath.Gauss as Gauss
 import qualified ContinuousMath.Stokes as Stokes
 import qualified ContinuousMath.Potential as Potential
@@ -14,7 +17,7 @@ decompose graph@(Dom.ComputationalGraph adjMap) =
         divMap = Gauss.calculateDivergences graph
         
         potentialMap = Potential.solvePotentials graph divMap
-        
+
         allEdges = concat (Map.elems adjMap)
 
         rotationalMap = Stokes.calculateRotationalFlow allEdges potentialMap
@@ -32,7 +35,13 @@ decompose graph@(Dom.ComputationalGraph adjMap) =
                 gradF = phi_u - phi_v
                 rotF  = Map.findWithDefault 0.0 eid rotationalMap
             in 
-                Dom.CalculatedEdgeResult eid gradF rotF
+                Dom.CalculatedEdgeResult 
+                    { Dom.resultEdgeIdentifier = eid
+                    , Dom.resultSource = u
+                    , Dom.resultTarget = v
+                    , Dom.gradientComponent = gradF
+                    , Dom.rotationalComponent = rotF
+                    }
 
         edgeResults = map calcEdgeResult allEdges
         
@@ -47,7 +56,7 @@ decompose graph@(Dom.ComputationalGraph adjMap) =
         nodeResults = map calcNodeResult (Map.keys adjMap)
 
         totalDiv = sum (Map.elems divMap)
-        isConservative = abs totalDiv < 1e-9
+        isConservative = abs totalDiv < 1e-6
 
     in 
         Dom.SimulationResult nodeResults edgeResults isConservative

@@ -32,8 +32,8 @@ main = do
 
     GaussSpec.tests
     StokesSpec.tests
-    DecompSpec.tests
     PotSpec.tests
+    DecompSpec.tests
 
     putStrLn "\n----------------------------------------"
 

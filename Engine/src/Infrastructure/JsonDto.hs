@@ -44,6 +44,8 @@ instance ToJSON IncomingGraphDto where
 
 data OutgoingEdgeResultDto = OutgoingEdgeResultDto {
     outgoingEdgeResultId :: Int,
+    outgoingEdgeResultSource :: Int,
+    outgoingEdgeResultTarget :: Int,
     outgoingEdgeResultGradient :: Double,
     outgoingEdgeResultRotational :: Double
 } deriving (Show, Generic)
@@ -68,3 +70,5 @@ data OutgoingSimulationResultDto = OutgoingSimulationResultDto {
 
 instance ToJSON OutgoingSimulationResultDto where
     toJSON = genericToJSON (cleanPrefixOptions "outgoingSimulationResult")
+
+    
