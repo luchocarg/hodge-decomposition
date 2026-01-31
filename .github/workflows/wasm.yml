@@ -17,9 +17,9 @@ jobs:
           source ~/.ghc-wasm/env
           
           wasm32-wasi-cabal update
-          wasm32-wasi-cabal configure --ghc-options="-O2 -fno-code -fwrite-interface -fignore-interface-pragmas"
-          
+          wasm32-wasi-cabal configure --allow-newer --ghc-options="-O2 -fno-code -fwrite-interface -fignore-interface-pragmas"
           wasm32-wasi-cabal build
+
           cp $(find dist-newstyle -name "*.wasm" -type f | head -n 1) ../engine.wasm
 
       - name: Upload Wasm Artifact
