@@ -19,6 +19,7 @@ library
       Domain.Types
       Infrastructure.JsonDto
       Infrastructure.Mappers
+      Infrastructure.TextParser
       Main
   other-modules:
       Paths_Engine
@@ -29,6 +30,7 @@ library
     , base >=4.7 && <5
     , bytestring
     , containers
+    , parsec
   default-language: Haskell2010
 
 executable Engine
@@ -43,15 +45,17 @@ executable Engine
       Domain.Types
       Infrastructure.JsonDto
       Infrastructure.Mappers
+      Infrastructure.TextParser
       Paths_Engine
   hs-source-dirs:
       src
   build-depends:
       Engine
     , aeson
-    , base >=4.7 && <5
+    , base
     , bytestring
     , containers
+    , parsec
   default-language: Haskell2010
 
 test-suite Engine-test
@@ -67,6 +71,7 @@ test-suite Engine-test
       DiscreteMath.DecomposeGraphSpec
       DiscreteMath.TreePathSpec
       Infrastructure.MappersSpec
+      Infrastructure.TextParserSpec
       MainSpec
       Paths_Engine
   hs-source-dirs:
@@ -79,5 +84,6 @@ test-suite Engine-test
     , base >=4.7 && <5
     , bytestring
     , containers
+    , parsec
     , random
   default-language: Haskell2010
