@@ -1,4 +1,4 @@
-name: Build Wasm
+name: Build Wasm (Subfolder)
 on: [push]
 
 jobs:
@@ -12,15 +12,15 @@ jobs:
           curl https://gitlab.haskell.org/ghc/ghc-wasm-meta/-/raw/master/bootstrap.sh | sh
 
       - name: Build to Wasm
+        working-directory: ./Engine
         run: |
           source ~/.ghc-wasm/env
+          
           wasm32-wasi-cabal update
           wasm32-wasi-cabal configure --ghc-options="-O2 -fno-code -fwrite-interface -fignore-interface-pragmas"
           wasm32-wasi-cabal build
 
-      - name: Find and Prepare Artifact
-        run: |
-          cp $(find dist-newstyle -name "*.wasm" -type f | head -n 1) engine.wasm
+          cp $(find dist-newstyle -name "*.wasm" -type f | head -n 1) ../engine.wasm
 
       - name: Upload Wasm
         uses: actions/upload-artifact@v4
