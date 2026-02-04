@@ -1,5 +1,5 @@
 **/.stack-work/
-
+**/Client/
 *.hi
 *.o
 *.dyn_hi
