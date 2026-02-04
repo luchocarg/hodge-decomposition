@@ -10,13 +10,16 @@ import qualified ContinuousMath.StokesSpec as StokesSpec
 import qualified ContinuousMath.DecompositionSpec as DecompSpec
 import qualified ContinuousMath.PotentialSpec as PotSpec
 
+import qualified Infrastructure.TextParserSpec as TextParserSpec
 import qualified Infrastructure.MappersSpec as MapSpec
+
 import qualified MainSpec as IntegrationSpec
 
 main :: IO ()
 main = do
     putStrLn "\n----------------------------------------"
     
+    TextParserSpec.tests
     MapSpec.tests
 
     putStrLn "\n----------------------------------------"

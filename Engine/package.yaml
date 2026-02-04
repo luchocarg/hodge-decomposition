@@ -1,10 +1,12 @@
 name:                Engine
 version:             0.1.0.0
+
 dependencies:
   - base >= 4.7 && < 5
   - containers
   - aeson
   - bytestring
+  - parsec
 
 library:
   source-dirs: src
@@ -15,6 +17,10 @@ executables:
     source-dirs:         src
     dependencies:
       - Engine
+      - base
+      - aeson
+      - bytestring
+      - parsec
 
 tests:
   Engine-test:
