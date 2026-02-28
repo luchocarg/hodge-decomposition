@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     console.error("Decomposition failed.", e);
                     alert("Decomposition failed. Check console.");
                 } finally {
-                    runDecompBtn.innerHTML = '<span class="btn-text">Run Decomposition</span><span class="btn-icon">⚡</span>';
+                    runDecompBtn.innerHTML = '<span class="btn-text">Run Decomposition</span><span class="btn-icon"></span>';
                     runDecompBtn.style.opacity = '1';
                 }
             }, 50);
