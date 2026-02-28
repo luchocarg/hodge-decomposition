@@ -1,0 +1,14 @@
+packages: .
+
+allow-newer:
+    *:base,
+    *:template-haskell,
+    *:time,
+    *:containers,
+    *:bytestring,
+    *:text,
+    *:ghc-prim,
+    *:binary
+
+constraints:
+    aeson >= 2.2.3.0

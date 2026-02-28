@@ -7,6 +7,14 @@ dependencies:
   - aeson
   - bytestring
   - parsec
+ghc-options:
+      - -no-hs-main
+      - -optl-Wl,--export=run_decomposition
+      - -optl-Wl,--export=free_haskell_string
+      - -optl-Wl,--export=hs_init
+      - -optl-Wl,--export=malloc
+      - -optl-Wl,--export=free
+
 
 library:
   source-dirs: src

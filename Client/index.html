@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helmholtz-Hodge Graph Decomposition</title>
+
+    <!-- Google Fonts for typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Vis Network for graph rendering -->
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="src/css/style.css">
+
+    <!-- Import Map for WASI shim -->
+    <script type="importmap">
+        {
+            "imports": {
+                "@bjorn3/browser_wasi_shim": "https://unpkg.com/@bjorn3/browser_wasi_shim@0.3.0/dist/index.js"
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div id="appContainer">
+        <!-- The interactive graph container -->
+        <div id="networkGraph"></div>
+
+        <!-- UI Control Panel with Glassmorphism -->
+        <div class="control-panel">
+            <div class="panel-header">
+                <h1>Hodge Decomposition</h1>
+                <p>Analyze flow components on discrete graphs.</p>
+            </div>
+
+            <div class="panel-section edit-mode">
+                <h3>Editor Tools</h3>
+                <div class="btn-group">
+                    <button id="addNodeBtn" class="primary-btn">Add Node</button>
+                    <button id="addEdgeBtn" class="secondary-btn">Add Edge</button>
+                    <button id="deleteBtn" class="danger-btn">Delete Selected</button>
+                </div>
+                <div class="flow-input-container">
+                    <label for="flowInput">Edge Flow (Weight):</label>
+                    <input type="number" id="flowInput" step="0.1" value="1.0" class="styled-input">
+                    <button id="setFlowBtn" class="action-btn">Set Flow</button>
+                </div>
+            </div>
+
+            <div class="panel-section computation-mode">
+                <h3>Engine Controls</h3>
+                <button id="runDecompBtn" class="compute-btn">
+                    <span class="btn-text">Run Decomposition</span>
+                    <span class="btn-icon">⚡</span>
+                </button>
+            </div>
+
+            <div class="panel-section legend-section hidden" id="legendSection">
+                <h3>Flow Components</h3>
+                <div class="legend-item">
+                    <span class="color-box gradient"></span>
+                    <span>Gradient (Curl-free)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="color-box rotational"></span>
+                    <span>Rotational (Div-free)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="color-box harmonic"></span>
+                    <span>Harmonic (Both)</span>
+                </div>
+            </div>
+
+            <!-- Status displays -->
+            <div class="status-indicator">
+                <span id="wasmStatus" class="status-dot warning"></span>
+                <span id="wasmStatusText">Loading Engine...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script type="module" src="src/js/main.js"></script>
+</body>
+
+</html>

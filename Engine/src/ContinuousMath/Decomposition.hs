@@ -1,62 +1,40 @@
-{-# LANGUAGE StrictData #-}
-
-module ContinuousMath.Decomposition (
-    decompose
-) where
+module ContinuousMath.Decomposition (decompose) where
 
 import qualified Data.Map.Strict as Map
 import qualified Domain.Types as Dom
-import qualified DiscreteMath.DecomposeGraph as Topo
 import qualified ContinuousMath.Gauss as Gauss
-import qualified ContinuousMath.Stokes as Stokes
 import qualified ContinuousMath.Potential as Potential
+import qualified ContinuousMath.Stokes as Stokes
 
 decompose :: Dom.ComputationalGraph -> Dom.SimulationResult
-decompose graph@(Dom.ComputationalGraph adjMap) = 
-    let 
+decompose graph@(Dom.ComputationalGraph adjMap) =
+    let
         divMap = Gauss.calculateDivergences graph
         
-        potentialMap = Potential.solvePotentials graph divMap
-
+        potMap = Potential.solvePotentials graph divMap
+        
         allEdges = concat (Map.elems adjMap)
-
-        rotationalMap = Stokes.calculateRotationalFlow allEdges potentialMap
+        rotMap = Stokes.calculateRotationalFlow allEdges potMap
         
-        calcEdgeResult :: Dom.InternalEdge -> Dom.CalculatedEdgeResult
-        calcEdgeResult edge = 
+        nodes = Map.keys adjMap
+        nodeResults = map (\u -> 
+            Dom.CalculatedNodeResult u 
+                (Map.findWithDefault 0.0 u divMap)
+                (Map.findWithDefault 0.0 u potMap)
+            ) nodes
+            
+        edgeResults = map (\e ->
             let 
-                eid = Dom.edgeIdentifier edge
-                u = Dom.sourceNode edge
-                v = Dom.destinationNode edge
-                
-                phi_u = Map.findWithDefault 0.0 u potentialMap
-                phi_v = Map.findWithDefault 0.0 v potentialMap
-                
-                gradF = phi_u - phi_v
-                rotF  = Map.findWithDefault 0.0 eid rotationalMap
-            in 
-                Dom.CalculatedEdgeResult 
-                    { Dom.resultEdgeIdentifier = eid
-                    , Dom.resultSource = u
-                    , Dom.resultTarget = v
-                    , Dom.gradientComponent = gradF
-                    , Dom.rotationalComponent = rotF
-                    }
-
-        edgeResults = map calcEdgeResult allEdges
-        
-        calcNodeResult :: Dom.NodeIdentifier -> Dom.CalculatedNodeResult
-        calcNodeResult nid = 
-            Dom.CalculatedNodeResult 
-                { Dom.resultNodeIdentifier = nid
-                , Dom.divergenceValue = Map.findWithDefault 0.0 nid divMap
-                , Dom.potentialValue = Map.findWithDefault 0.0 nid potentialMap
-                }
-
-        nodeResults = map calcNodeResult (Map.keys adjMap)
-
-        totalDiv = sum (Map.elems divMap)
-        isConservative = abs totalDiv < 1e-6
-
-    in 
-        Dom.SimulationResult nodeResults edgeResults isConservative
+                eid = Dom.edgeIdentifier e
+                u = Dom.sourceNode e
+                v = Dom.destinationNode e
+                phiU = Map.findWithDefault 0.0 u potMap
+                phiV = Map.findWithDefault 0.0 v potMap
+                grad = phiU - phiV
+                rot = Map.findWithDefault 0.0 eid rotMap
+            in Dom.CalculatedEdgeResult eid u v grad rot
+            ) allEdges
+            
+        conservative = all (\r -> abs (Dom.rotationalComponent r) < 1e-7) edgeResults
+    in
+        Dom.SimulationResult nodeResults edgeResults conservative

@@ -1,18 +1,9 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Infrastructure.JsonDto where
 
-import GHC.Generics
 import Data.Aeson
-import Data.Char (toLower)
-
-cleanPrefixOptions :: String -> Options
-cleanPrefixOptions prefix = defaultOptions { 
-    fieldLabelModifier = \fieldName -> 
-        case drop (length prefix) fieldName of
-            (c:cs) -> toLower c : cs
-            []     -> []
-}
+import Control.Applicative ((<|>))
 
 -- INPUT DTOs
 
@@ -21,24 +12,40 @@ data IncomingEdgeDto = IncomingEdgeDto {
     incomingEdgeFrom :: Int,
     incomingEdgeTo :: Int,
     incomingEdgeFlow :: Double
-} deriving (Show, Generic)
+} deriving (Show)
 
 instance FromJSON IncomingEdgeDto where
-    parseJSON = genericParseJSON (cleanPrefixOptions "incomingEdge")
+    parseJSON (Object v) = IncomingEdgeDto
+        <$> v .: "incomingEdgeId"
+        <*> v .: "incomingEdgeFrom"
+        <*> v .: "incomingEdgeTo"
+        <*> v .: "incomingEdgeFlow"
+    parseJSON _ = fail "Expected an object for IncomingEdgeDto"
 
 instance ToJSON IncomingEdgeDto where
-    toJSON = genericToJSON (cleanPrefixOptions "incomingEdge")
+    toJSON (IncomingEdgeDto i f t w) =
+        object [ "incomingEdgeId" .= i
+               , "incomingEdgeFrom" .= f
+               , "incomingEdgeTo" .= t
+               , "incomingEdgeFlow" .= w
+               ]
 
 data IncomingGraphDto = IncomingGraphDto {
     incomingGraphNodes :: [Int],
     incomingGraphEdges :: [IncomingEdgeDto]
-} deriving (Show, Generic)
+} deriving (Show)
 
 instance FromJSON IncomingGraphDto where
-    parseJSON = genericParseJSON (cleanPrefixOptions "incomingGraph")
+    parseJSON (Object v) = IncomingGraphDto
+        <$> v .: "incomingGraphNodes"
+        <*> v .: "incomingGraphEdges"
+    parseJSON _ = fail "Expected an object for IncomingGraphDto"
 
 instance ToJSON IncomingGraphDto where
-    toJSON = genericToJSON (cleanPrefixOptions "incomingGraph")
+    toJSON (IncomingGraphDto n e) =
+        object [ "incomingGraphNodes" .= n
+               , "incomingGraphEdges" .= e
+               ]
 
 -- OUTPUT DTOs
 
@@ -48,27 +55,39 @@ data OutgoingEdgeResultDto = OutgoingEdgeResultDto {
     outgoingEdgeResultTarget :: Int,
     outgoingEdgeResultGradient :: Double,
     outgoingEdgeResultRotational :: Double
-} deriving (Show, Generic)
+} deriving (Show)
 
 instance ToJSON OutgoingEdgeResultDto where
-    toJSON = genericToJSON (cleanPrefixOptions "outgoingEdgeResult")
+    toJSON (OutgoingEdgeResultDto i s t g r) =
+        object [ "outgoingEdgeResultId" .= i
+               , "outgoingEdgeResultSource" .= s
+               , "outgoingEdgeResultTarget" .= t
+               , "outgoingEdgeResultGradient" .= g
+               , "outgoingEdgeResultRotational" .= r
+               ]
 
 data OutgoingNodeResultDto = OutgoingNodeResultDto {
     outgoingNodeResultId :: Int,
     outgoingNodeResultDivergence :: Double,
     outgoingNodeResultPotential :: Double
-} deriving (Show, Generic)
+} deriving (Show)
 
 instance ToJSON OutgoingNodeResultDto where
-    toJSON = genericToJSON (cleanPrefixOptions "outgoingNodeResult")
+    toJSON (OutgoingNodeResultDto i d p) =
+        object [ "outgoingNodeResultId" .= i
+               , "outgoingNodeResultDivergence" .= d
+               , "outgoingNodeResultPotential" .= p
+               ]
 
 data OutgoingSimulationResultDto = OutgoingSimulationResultDto {
     outgoingSimulationResultNodes :: [OutgoingNodeResultDto],
     outgoingSimulationResultEdges :: [OutgoingEdgeResultDto],
     outgoingSimulationResultIsConservative :: Bool
-} deriving (Show, Generic)
+} deriving (Show)
 
 instance ToJSON OutgoingSimulationResultDto where
-    toJSON = genericToJSON (cleanPrefixOptions "outgoingSimulationResult")
-
-    
+    toJSON (OutgoingSimulationResultDto n e c) =
+        object [ "outgoingSimulationResultNodes" .= n
+               , "outgoingSimulationResultEdges" .= e
+               , "outgoingSimulationResultIsConservative" .= c
+               ] 
