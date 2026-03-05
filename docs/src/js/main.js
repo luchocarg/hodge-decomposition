@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const addNodeBtn = document.getElementById('addNodeBtn');
     const addEdgeBtn = document.getElementById('addEdgeBtn');
     const deleteBtn = document.getElementById('deleteBtn');
+    const randomGraphBtn = document.getElementById('randomGraphBtn');
     const flowInput = document.getElementById('flowInput');
     const setFlowBtn = document.getElementById('setFlowBtn');
     const runDecompBtn = document.getElementById('runDecompBtn');
@@ -87,6 +88,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     deleteBtn.addEventListener('click', () => {
         graph.deleteSelected();
+    });
+
+    randomGraphBtn.addEventListener('click', () => {
+        graph.generateRandomGraph();
     });
 
     setFlowBtn.addEventListener('click', () => {

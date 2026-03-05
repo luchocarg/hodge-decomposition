@@ -13,45 +13,53 @@ export class GraphRenderer {
         this.options = {
             nodes: {
                 shape: 'dot',
-                size: 20,
+                size: 26,
                 color: {
                     background: '#1e293b',
-                    border: '#475569',
+                    border: '#3b82f6',
                     highlight: {
                         background: '#3b82f6',
                         border: '#60a5fa'
                     }
                 },
-                font: { color: '#f8fafc' },
+                font: { color: '#f8fafc', size: 15, face: 'Inter' },
                 borderWidth: 2
             },
             edges: {
-                width: 2,
+                width: 2.5,
                 color: {
-                    color: '#475569',
+                    color: '#64748b',
                     highlight: '#94a3b8'
                 },
                 arrows: {
-                    to: { enabled: true, scaleFactor: 1, type: 'arrow' }
+                    to: { enabled: true, scaleFactor: 0.75, type: 'arrow' }
                 },
                 font: {
-                    color: '#cbd5e1',
+                    color: '#f8fafc',
                     size: 14,
                     align: 'middle',
-                    background: 'rgba(15, 23, 42, 0.8)'
+                    background: 'rgba(15, 23, 42, 0.85)',
+                    strokeWidth: 0, // removed stroke to make text cleaner in dark mode
+                    face: 'Inter'
                 },
-                smooth: { type: 'continuous' }
+                smooth: {
+                    enabled: true,
+                    type: 'dynamic',
+                    roundness: 0.5
+                }
             },
             physics: {
-                forceAtlas2Based: {
-                    gravitationalConstant: -50,
-                    centralGravity: 0.01,
-                    springLength: 150,
-                    springConstant: 0.08
+                barnesHut: {
+                    gravitationalConstant: -4000,
+                    centralGravity: 0.3,
+                    springLength: 220,
+                    springConstant: 0.04,
+                    damping: 0.09,
+                    avoidOverlap: 0.15
                 },
                 maxVelocity: 50,
-                solver: 'forceAtlas2Based',
-                timestep: 0.35,
+                solver: 'barnesHut',
+                timestep: 0.5,
                 stabilization: { iterations: 150 }
             },
             interaction: {
@@ -139,6 +147,44 @@ export class GraphRenderer {
         if (selection.edges.length > 0) {
             this.edges.remove(selection.edges);
         }
+    }
+
+    generateRandomGraph(numNodes = 10, numEdges = 16) {
+        this.nodes.clear();
+        this.edges.clear();
+
+        const newNodes = [];
+        for (let i = 1; i <= numNodes; i++) {
+            newNodes.push({ id: i, label: `Node ${i}` });
+        }
+        this.nodes.add(newNodes);
+
+        const newEdges = [];
+        let edgeId = 1;
+
+        while (newEdges.length < numEdges) {
+            const from = Math.floor(Math.random() * numNodes) + 1;
+            const to = Math.floor(Math.random() * numNodes) + 1;
+
+            if (from !== to) {
+                // Prevent duplicate edges
+                const existing = newEdges.find(e => e.from === from && e.to === to);
+                if (!existing) {
+                    const randomFlow = (Math.random() * 10 - 5).toFixed(1);
+                    newEdges.push({
+                        id: edgeId++,
+                        from: from,
+                        to: to,
+                        label: String(randomFlow),
+                        flow: parseFloat(randomFlow)
+                    });
+                }
+            }
+        }
+        this.edges.add(newEdges);
+
+        this.nodeCounter = numNodes + 1;
+        this.edgeCounter = edgeId;
     }
 
     setFlowOnSelectedEdges(flowValue) {
