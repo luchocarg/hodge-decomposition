@@ -76,6 +76,32 @@ h3 {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+
+    /* Ensure it adapts to screen height and scrolls if content expands too much */
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+
+    /* Smooth transitions for size/layout changes */
+    transition: all 0.3s ease;
+}
+
+/* Custom modern scrollbar for the control panel */
+.control-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.control-panel::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 10px 0;
+}
+
+.control-panel::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+}
+
+.control-panel::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
 }
 
 .panel-header h1 {
@@ -376,4 +402,32 @@ div.vis-network div.vis-tooltip {
     font-family: 'Inter', sans-serif !important;
     padding: 0.5rem 0.75rem !important;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Responsive adjustments for smaller screens or heights */
+@media (max-height: 800px) {
+    .control-panel {
+        gap: 1rem;
+        padding: 1.25rem;
+        top: 1rem;
+        left: 1rem;
+        max-height: calc(100vh - 2rem);
+    }
+
+    .panel-section {
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .control-panel {
+        top: auto;
+        bottom: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100vw - 2rem);
+        max-width: 400px;
+        max-height: 45vh;
+        z-index: 20;
+    }
 }
