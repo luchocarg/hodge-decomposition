@@ -2,22 +2,25 @@
     --bg-dark: #0f172a;
     --bg-panel: rgba(30, 41, 59, 0.75);
     --panel-border: rgba(255, 255, 255, 0.08);
-    
+
     --text-primary: #f8fafc;
     --text-secondary: #94a3b8;
-    
+
     --accent-blue: #3b82f6;
     --accent-blue-hover: #2563eb;
-    
+
     --accent-danger: #ef4444;
     --accent-danger-hover: #dc2626;
 
     --accent-success: #10b981;
     --accent-warning: #f59e0b;
 
-    --gradient-color: #ec4899; /* Gradient flow (curl free) */
-    --rotational-color: #06b6d4; /* Rotational flow (div free) */
-    --harmonic-color: #8b5cf6; /* Harmonic flow (both) */
+    --gradient-color: #ec4899;
+    /* Gradient flow (curl free) */
+    --rotational-color: #06b6d4;
+    /* Rotational flow (div free) */
+    --harmonic-color: #8b5cf6;
+    /* Harmonic flow (both) */
 }
 
 * {
@@ -33,7 +36,9 @@ body {
     overflow: hidden;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
     font-family: 'Outfit', sans-serif;
 }
 
@@ -60,7 +65,7 @@ h1, h2, h3 {
     left: 2rem;
     width: 330px;
     z-index: 10;
-    
+
     background: var(--bg-panel);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
@@ -75,10 +80,11 @@ h1, h2, h3 {
 
 .panel-header h1 {
     font-size: 1.5rem;
+    font-weight: 700;
     margin-bottom: 0.25rem;
-    background: linear-gradient(135deg, #a855f7 0%, #3b82f6 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--text-primary);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    letter-spacing: -0.02em;
 }
 
 .panel-header p {
@@ -103,9 +109,16 @@ h1, h2, h3 {
 
 /* Buttons */
 .btn-group {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 0.5rem;
+}
+
+.btn-group-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
 }
 
 button {
@@ -148,22 +161,23 @@ button:active {
 
 .tertiary-btn {
     width: 100%;
-    background: transparent;
-    border: 1px dashed var(--accent-success);
-    color: var(--accent-success);
-    margin-top: 0.25rem;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #34d399;
+    /* Softer success green for dark mode */
 }
 
 .tertiary-btn:hover {
-    background: rgba(16, 185, 129, 0.1);
+    background: rgba(16, 185, 129, 0.2);
+    border-color: rgba(16, 185, 129, 0.5);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
 }
 
 .danger-btn {
     width: 100%;
     background: transparent;
-    border: 1px solid var(--accent-danger);
+    border: 1px solid rgba(239, 68, 68, 0.5);
     color: var(--accent-danger);
-    margin-top: 0.25rem;
 }
 
 .danger-btn:hover {
@@ -172,16 +186,18 @@ button:active {
 
 .compute-btn {
     width: 100%;
-    background: linear-gradient(135deg, #a855f7 0%, #3b82f6 100%);
+    background: var(--accent-blue);
     color: white;
     font-size: 1rem;
     font-weight: 600;
     padding: 0.75rem;
-    box-shadow: 0 4px 14px 0 rgba(168, 85, 247, 0.39);
+    box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .compute-btn:hover {
-    box-shadow: 0 6px 20px rgba(168, 85, 247, 0.5);
+    background: var(--accent-blue-hover);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
     transform: translateY(-1px);
 }
 
@@ -236,6 +252,22 @@ button:active {
     align-items: center;
     gap: 0.5rem;
     font-size: 0.85rem;
+    padding: 0.25rem;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.legend-item.interactive {
+    cursor: pointer;
+}
+
+.legend-item.interactive:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.legend-item.active {
+    background: rgba(255, 255, 255, 0.1);
+    outline: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .color-box {
@@ -245,9 +277,39 @@ button:active {
     display: inline-block;
 }
 
-.color-box.gradient { background-color: var(--gradient-color); }
-.color-box.rotational { background-color: var(--rotational-color); }
-.color-box.harmonic { background-color: var(--harmonic-color); }
+.color-box.gradient {
+    background-color: var(--gradient-color);
+}
+
+.color-box.rotational {
+    background-color: var(--rotational-color);
+}
+
+.color-box.harmonic {
+    background-color: var(--harmonic-color);
+}
+
+.legend-label {
+    flex-grow: 1;
+}
+
+.energy-val {
+    font-family: 'Inter', monospace;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.grad-text {
+    color: var(--gradient-color);
+}
+
+.rot-text {
+    color: var(--rotational-color);
+}
+
+.harm-text {
+    color: var(--harmonic-color);
+}
 
 .hidden {
     display: none;
@@ -271,14 +333,37 @@ button:active {
     border-radius: 50%;
 }
 
-.status-dot.success { background-color: var(--accent-success); box-shadow: 0 0 8px var(--accent-success); }
-.status-dot.error { background-color: var(--accent-danger); box-shadow: 0 0 8px var(--accent-danger); }
-.status-dot.warning { background-color: var(--accent-warning); box-shadow: 0 0 8px var(--accent-warning); animation: pulse 1.5s infinite; }
+.status-dot.success {
+    background-color: var(--accent-success);
+    box-shadow: 0 0 8px var(--accent-success);
+}
+
+.status-dot.error {
+    background-color: var(--accent-danger);
+    box-shadow: 0 0 8px var(--accent-danger);
+}
+
+.status-dot.warning {
+    background-color: var(--accent-warning);
+    box-shadow: 0 0 8px var(--accent-warning);
+    animation: pulse 1.5s infinite;
+}
 
 @keyframes pulse {
-    0% { opacity: 0.6; transform: scale(0.9); }
-    50% { opacity: 1; transform: scale(1.1); }
-    100% { opacity: 0.6; transform: scale(0.9); }
+    0% {
+        opacity: 0.6;
+        transform: scale(0.9);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+
+    100% {
+        opacity: 0.6;
+        transform: scale(0.9);
+    }
 }
 
 /* Customizing vis-network tooltip and overlays */

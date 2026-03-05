@@ -38,14 +38,14 @@
         <div class="control-panel">
             <div class="panel-header">
                 <h1>Hodge Decomposition</h1>
-                <p>Analyze flow components on discrete graphs.</p>
             </div>
 
             <div class="panel-section edit-mode">
-                <h3>Editor Tools</h3>
                 <div class="btn-group">
                     <button id="addNodeBtn" class="primary-btn">Add Node</button>
                     <button id="addEdgeBtn" class="secondary-btn">Add Edge</button>
+                </div>
+                <div class="btn-group-vertical">
                     <button id="deleteBtn" class="danger-btn">Delete Selected</button>
                     <button id="randomGraphBtn" class="tertiary-btn">Generate Random Graph</button>
                 </div>
@@ -57,32 +57,47 @@
             </div>
 
             <div class="panel-section computation-mode">
-                <h3>Engine Controls</h3>
                 <button id="runDecompBtn" class="compute-btn">
                     <span class="btn-text">Run Decomposition</span>
                 </button>
             </div>
 
             <div class="panel-section legend-section hidden" id="legendSection">
-                <h3>Flow Components</h3>
-                <div class="legend-item">
+                <h3>Flow Components & Energy</h3>
+
+                <div class="legend-item" title="Total raw flow across all edges">
+                    <span class="color-box"
+                        style="background: transparent; border: 1px solid var(--text-secondary);"></span>
+                    <span class="legend-label">Total ||J||²</span>
+                    <span class="energy-val" id="statTotal">--</span>
+                </div>
+
+                <div class="legend-item interactive" data-filter="gradient"
+                    title="Flow that moves from sources to sinks without circulating (Curl: 0)">
                     <span class="color-box gradient"></span>
-                    <span>Gradient (Curl-free)</span>
+                    <span class="legend-label">Gradient (Irrotational)</span>
+                    <span class="energy-val grad-text" id="statGrad">--</span>
                 </div>
-                <div class="legend-item">
+
+                <div class="legend-item interactive" data-filter="rotational"
+                    title="Flow that circulates without net sources or sinks (Divergence: 0)">
                     <span class="color-box rotational"></span>
-                    <span>Rotational (Div-free)</span>
+                    <span class="legend-label">Rotational (Solenoidal)</span>
+                    <span class="energy-val rot-text" id="statRot">--</span>
                 </div>
-                <div class="legend-item">
+
+                <div class="legend-item interactive" data-filter="harmonic"
+                    title="Flow that is both irrotational and solenoidal (determined by global topology)">
                     <span class="color-box harmonic"></span>
-                    <span>Harmonic (Both)</span>
+                    <span class="legend-label">Harmonic (Global)</span>
+                    <span class="energy-val harm-text" id="statHarm">--</span>
                 </div>
             </div>
 
             <!-- Status displays -->
             <div class="status-indicator">
                 <span id="wasmStatus" class="status-dot warning"></span>
-                <span id="wasmStatusText">Loading Engine...</span>
+                <span id="wasmStatusText">Initializing Compute Engine...</span>
             </div>
         </div>
     </div>

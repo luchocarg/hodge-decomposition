@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         await engine.init();
         wasmStatus.className = 'status-dot success';
-        wasmStatusText.textContent = 'Engine Ready';
+        wasmStatusText.textContent = 'Compute Engine Initialized';
         wasmReady = true;
     } catch (e) {
         wasmStatus.className = 'status-dot error';
@@ -117,8 +117,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             setTimeout(() => {
                 try {
                     const resultDto = engine.runDecomposition(dto);
-                    graph.applyDecomposition(resultDto);
-                    legendSection.classList.remove('hidden');
+                    const energies = graph.applyDecomposition(resultDto);
+
+                    if (energies) {
+                        legendSection.classList.remove('hidden');
+
+                        // Helper to format energies nicely
+                        const formatEnergy = (val) => {
+                            if (val > 10000 || (val < 0.001 && val > 0)) return val.toExponential(2);
+                            return val.toFixed(2);
+                        };
+
+                        document.getElementById('statTotal').innerText = formatEnergy(energies.totalEnergy);
+                        document.getElementById('statGrad').innerText = formatEnergy(energies.gradEnergy);
+                        document.getElementById('statRot').innerText = formatEnergy(energies.rotEnergy);
+                        document.getElementById('statHarm').innerText = formatEnergy(energies.harmEnergy);
+                    }
                 } catch (e) {
                     console.error("Decomposition failed.", e);
                     alert("Decomposition failed. Check console.");
@@ -131,5 +145,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (e) {
             console.error(e);
         }
+    });
+
+    // Legend interactivity
+    const legendItems = document.querySelectorAll('.legend-item.interactive');
+    legendItems.forEach(item => {
+        item.addEventListener('click', () => {
+            // Find active ones
+            const isActive = item.classList.contains('active');
+
+            // Clear all
+            legendItems.forEach(i => i.classList.remove('active'));
+
+            if (isActive) {
+                // Was active, disable filter
+                graph.applyLayerFilter(null);
+            } else {
+                // Activate this one
+                item.classList.add('active');
+                graph.applyLayerFilter(item.dataset.filter);
+            }
+        });
     });
 });
