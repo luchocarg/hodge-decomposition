@@ -94,6 +94,19 @@
                 </div>
             </div>
 
+            <div class="panel-section validation-section hidden" id="validationSection">
+                <h3>Data Validation</h3>
+                <div class="legend-item"
+                    title="Inner product of Gradient and Rotational flow (should be ~0 for valid decomposition)">
+                    <span class="legend-label">Orthogonality (ϵ)</span>
+                    <span class="energy-val" id="statOrtho">--</span>
+                </div>
+                <div class="legend-item"
+                    title="Percentage of flow that is circulating (Solenoidal) relative to total flow">
+                    <span class="legend-label">Curvature %</span>
+                    <span class="energy-val" id="statRatio">--</span>
+                </div>
+            </div>
             <!-- Status displays -->
             <div class="status-indicator">
                 <span id="wasmStatus" class="status-dot warning"></span>

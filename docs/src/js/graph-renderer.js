@@ -27,15 +27,15 @@ export class GraphRenderer {
             },
             edges: {
                 width: 2.5,
-                color: {
-                    color: '#64748b',
-                    highlight: '#94a3b8',
-                    hover: '#94a3b8',
+                color: { // Vis.js native lines are fully transparent using opacity, so our ctx gradients show underneath without crashing the color parser
+                    color: '#000000',
+                    highlight: '#000000',
+                    hover: '#000000',
+                    opacity: 0.0
                 },
                 arrows: {
-                    to: { enabled: true, scaleFactor: 0.6, type: 'vee' }, // 'vee' shape at the end node
+                    to: { enabled: false }
                 },
-                endPointOffset: { to: 8 },
                 font: {
                     color: '#f8fafc',
                     size: 14,
@@ -99,46 +99,73 @@ export class GraphRenderer {
 
             Object.keys(edgeIds).forEach(edgeId => {
                 const edgeObj = edgeIds[edgeId];
-                if (!edgeObj.options || !edgeObj.options.color) return;
-
-                // Only apply custom gradient if we have a base color flow
-                const colorStr = typeof edgeObj.options.color === 'string' ? edgeObj.options.color : edgeObj.options.color.color;
-                if (!colorStr) return;
+                if (!edgeObj.options) return;
 
                 const fromNode = nodes[edgeObj.fromId];
                 const toNode = nodes[edgeObj.toId];
-
                 if (!fromNode || !toNode) return;
 
                 const fromPos = this.network.getPositions([edgeObj.fromId])[edgeObj.fromId];
                 const toPos = this.network.getPositions([edgeObj.toId])[edgeObj.toId];
+                if (!fromPos || !toPos) return;
 
-                // Check raw data flow to know direction. (Negative flow means fromTo is swapped visually)
-                const rawEdge = this.edges.get(edgeId);
-                if (!rawEdge) return;
+                let renderFlow = 0;
+                let colorBase = '#64748b'; // default gray
+                let isReversed = false;
+                let isMuted = false;
 
-                const isReversed = rawEdge.flow < 0;
-
-                const gradient = ctx.createLinearGradient(fromPos.x, fromPos.y, toPos.x, toPos.y);
-
-                // Color parsing (cheap hack for hex to rgba)
-                let r, g, b;
-                if (colorStr.startsWith('#')) {
-                    const hex = colorStr.replace('#', '');
-                    r = parseInt(hex.substring(0, 2), 16) || 100;
-                    g = parseInt(hex.substring(2, 4), 16) || 116;
-                    b = parseInt(hex.substring(4, 6), 16) || 139;
-                } else if (colorStr.startsWith('rgba')) {
-                    // It's already muted by the filter
-                    edgeObj.options.color.color = colorStr;
-                    return;
+                if (this.activeFilter) {
+                    const visuals = this.baseEdgeData.get(parseInt(edgeId));
+                    if (visuals && visuals._decomp) {
+                        if (this.activeFilter === 'gradient') {
+                            renderFlow = visuals._decomp.gradFlow;
+                            colorBase = '#ec4899';
+                        } else if (this.activeFilter === 'rotational') {
+                            renderFlow = visuals._decomp.rotFlow;
+                            colorBase = '#06b6d4';
+                        } else if (this.activeFilter === 'harmonic') {
+                            renderFlow = visuals._decomp.harmFlow;
+                            colorBase = '#8b5cf6';
+                        }
+                    }
+                    if (Math.abs(renderFlow) < 0.001) isMuted = true;
                 } else {
-                    r = 100; g = 116; b = 139; // default gray
+                    const rawEdge = this.edges.get(edgeId);
+                    if (rawEdge) renderFlow = rawEdge.flow;
                 }
 
-                // Opaque/dark at source, bright/solid at destination
-                const opaqueColor = `rgba(${r}, ${g}, ${b}, 0.15)`;
-                const solidColor = `rgba(${r}, ${g}, ${b}, 1.0)`;
+                isReversed = renderFlow < 0;
+
+                // Create gradient bounding box taking curve into account
+                let startX = fromPos.x, startY = fromPos.y;
+                let endX = toPos.x, endY = toPos.y;
+
+                let via = null;
+                if (edgeObj.edgeType && typeof edgeObj.edgeType.getViaNode === 'function') {
+                    via = edgeObj.edgeType.getViaNode();
+                    if (via) {
+                        endX = toPos.x; endY = toPos.y;
+                    }
+                }
+
+                const gradient = ctx.createLinearGradient(startX, startY, endX, endY);
+
+                // Parse base color
+                let r = 100, g = 116, b = 139;
+                if (colorBase.startsWith('#')) {
+                    const hex = colorBase.replace('#', '');
+                    r = parseInt(hex.substring(0, 2), 16) || r;
+                    g = parseInt(hex.substring(2, 4), 16) || g;
+                    b = parseInt(hex.substring(4, 6), 16) || b;
+                }
+
+                // If alpha toggled (inactive filter), keep it entirely muted
+                let baseAlpha = isMuted ? 0.05 : 0.25;
+                let brightAlpha = isMuted ? 0.15 : 1.0;
+
+                // Base color (origin) -> Bright color (destination)
+                const opaqueColor = `rgba(${r}, ${g}, ${b}, ${baseAlpha})`;
+                const solidColor = `rgba(${r}, ${g}, ${b}, ${brightAlpha})`;
 
                 if (isReversed) {
                     gradient.addColorStop(0, solidColor);
@@ -148,12 +175,24 @@ export class GraphRenderer {
                     gradient.addColorStop(1, solidColor);
                 }
 
-                // Override vis.js color property with the CanvasGradient object
-                if (typeof edgeObj.options.color !== 'string') {
-                    edgeObj.options.color.color = gradient;
-                    edgeObj.options.color.highlight = gradient;
-                    edgeObj.options.color.hover = gradient;
+                ctx.save();
+                ctx.strokeStyle = gradient;
+
+                // Keep the exact thickness of the underlying vis.js edge option
+                ctx.lineWidth = edgeObj.options.width || 2.5;
+
+                // Draw curve identically to how vis.js calculates bezier shapes
+                ctx.beginPath();
+                ctx.moveTo(fromPos.x, fromPos.y);
+
+                if (via) {
+                    ctx.quadraticCurveTo(via.x, via.y, toPos.x, toPos.y);
+                } else {
+                    ctx.lineTo(toPos.x, toPos.y);
                 }
+
+                ctx.stroke();
+                ctx.restore();
             });
         });
 
@@ -326,10 +365,11 @@ export class GraphRenderer {
 
                 // Make edge thickness proportional to total flow
                 const absJ = Math.abs(J);
-                const thickness = 2 + (absJ / maxAbsFlow) * 6; // Range: 2 to 8
+                // Clamp thickness between 2 (min) and 12 (max)
+                const thickness = Math.max(2, Math.min(12, 1.5 + (absJ / maxAbsFlow) * 8));
 
                 // Build a title (on-hover) with components
-                const title = `Total Flow (J): ${J.toFixed(2)}\nGradient: ${gradFlow.toFixed(3)}\nRotational: ${rotFlow.toFixed(3)}\nHarmonic: ${harmFlow.toFixed(3)}`;
+                const title = `Jtotal: ${Math.abs(J).toFixed(2)} | ∇ϕ: ${Math.abs(gradFlow).toFixed(2)} | ∇×: ${Math.abs(rotFlow).toFixed(2)} | Harm: ${Math.abs(harmFlow).toFixed(2)}`;
 
                 // Base Colors for Decomposition (Hex constants to match CSS perfectly):
                 // Gradient/Irrotational: #ec4899 (Pink/Fuchsia)
@@ -361,9 +401,8 @@ export class GraphRenderer {
                 const baseVisuals = {
                     id: edge.id,
                     width: thickness,
-                    color: renderedColor,
-                    arrows: { to: { enabled: true, scaleFactor: Math.max(0.4, 3 / thickness), type: 'vee' } },
-                    endPointOffset: { to: Math.max(8, thickness * 2) }, // Pull the line back dynamically based on thickness
+                    color: { color: '#000000', highlight: '#000000', hover: '#000000', opacity: 0.0 },
+                    arrows: { to: { enabled: false } },
                     title: title,
                     label: undefined, // ensure label is hidden
                     // Custom properties for switching layers
@@ -390,12 +429,73 @@ export class GraphRenderer {
         // Map Node potentials/divergence to colors/titles
         if (resultDto.outgoingSimulationResultNodes) {
             const nodeUpdates = [];
+
+            // Find max potential magnitude for scaling
+            let maxAbsPotential = 0.001; // Avoid divide by zero
+            let maxAbsDivergence = 0.001;
+
+            resultDto.outgoingSimulationResultNodes.forEach(dtoNode => {
+                const absPot = Math.abs(dtoNode.outgoingNodeResultPotential);
+                const absDiv = Math.abs(dtoNode.outgoingNodeResultDivergence);
+                if (absPot > maxAbsPotential) maxAbsPotential = absPot;
+                if (absDiv > maxAbsDivergence) maxAbsDivergence = absDiv;
+            });
+
+            // CoolWarm Hex Interpolator helper
+            // Map t (-1 to 1) to Blue (-1) -> Gray (0) -> Red (1)
+            const getDivergenceColor = (divVal) => {
+                const t = Math.max(-1, Math.min(1, divVal / maxAbsDivergence)); // Normalized [-1, 1]
+
+                // Base colors: Blue (#3b82f6), Gray (#1e293b), Red (#ef4444)
+                let r, g, b;
+
+                if (t === 0) {
+                    return { bg: '#1e293b', border: '#475569' };
+                } else if (t < 0) {
+                    // Interpolate Gray to Blue
+                    const p = Math.abs(t);
+                    r = Math.round(30 + p * (59 - 30));
+                    g = Math.round(41 + p * (130 - 41));
+                    b = Math.round(59 + p * (246 - 59));
+                } else {
+                    // Interpolate Gray to Red
+                    const p = t;
+                    r = Math.round(30 + p * (239 - 30));
+                    g = Math.round(41 + p * (68 - 41));
+                    b = Math.round(59 + p * (68 - 59));
+                }
+
+                // Darken slightly for borders
+                const br = Math.max(0, r - 30);
+                const bg = Math.max(0, g - 30);
+                const bb = Math.max(0, b - 30);
+
+                return {
+                    bg: `rgb(${r}, ${g}, ${b})`,
+                    border: `rgb(${br}, ${bg}, ${bb})`
+                };
+            };
+
             resultDto.outgoingSimulationResultNodes.forEach(dtoNode => {
                 const node = this.nodes.get(dtoNode.outgoingNodeResultId);
                 if (node) {
+                    const absPot = Math.abs(dtoNode.outgoingNodeResultPotential);
+                    // Base width is 45. We scale it up to a maximum of 80 based on potential magnitude.
+                    const nodeSize = 45 + (absPot / maxAbsPotential) * 35;
+                    const colors = getDivergenceColor(dtoNode.outgoingNodeResultDivergence);
+
                     nodeUpdates.push({
                         id: node.id,
-                        title: `Potential: ${dtoNode.outgoingNodeResultPotential.toFixed(3)}\nDivergence: ${dtoNode.outgoingNodeResultDivergence.toFixed(3)}`
+                        title: `Potential (ϕ): ${dtoNode.outgoingNodeResultPotential.toFixed(3)}\nDivergence (∇·J): ${dtoNode.outgoingNodeResultDivergence.toFixed(3)}`,
+                        widthConstraint: { minimum: nodeSize, maximum: nodeSize },
+                        color: {
+                            background: colors.bg,
+                            border: colors.border,
+                            highlight: {
+                                background: colors.border,
+                                border: '#ffffff'
+                            }
+                        }
                     });
                 }
             });
@@ -438,23 +538,20 @@ export class GraphRenderer {
             }
 
             const absTarget = Math.abs(targetFlow);
-            // If the component is negligible, make it thin and gray
+            // If the component is negligible, make it thin
             if (absTarget < 0.001) {
                 updates.push({
                     id: edgeId,
-                    width: 1,
-                    arrows: { to: { enabled: true, scaleFactor: 0.8, type: 'vee' } },
-                    color: { color: 'rgba(100, 116, 139, 0.2)', highlight: 'rgba(100, 116, 139, 0.5)' }
+                    width: visuals.width, // keep original size
+                    arrows: { to: { enabled: false } }
                 });
             } else {
                 // Emphasize this component with thickness based on its magnitude
-                const thickness = 2 + (absTarget / decomp.maxAbsFlow) * 6;
+                const thickness = Math.max(2, Math.min(12, 1.5 + (absTarget / decomp.maxAbsFlow) * 8));
                 updates.push({
                     id: edgeId,
                     width: thickness,
-                    arrows: { to: { enabled: true, scaleFactor: Math.max(0.4, 3 / thickness), type: 'vee' } },
-                    endPointOffset: { to: Math.max(8, thickness * 2) },
-                    color: { color: targetColor, highlight: targetColor }
+                    arrows: { to: { enabled: false } }
                 });
             }
         });

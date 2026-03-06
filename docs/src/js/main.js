@@ -121,10 +121,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                     if (energies) {
                         legendSection.classList.remove('hidden');
+                        document.getElementById('validationSection').classList.remove('hidden');
 
                         // Helper to format energies nicely
                         const formatEnergy = (val) => {
-                            if (val > 10000 || (val < 0.001 && val > 0)) return val.toExponential(2);
+                            if (val > 10000 || (Math.abs(val) < 0.001 && val !== 0)) return val.toExponential(2);
                             return val.toFixed(2);
                         };
 
@@ -132,6 +133,23 @@ document.addEventListener('DOMContentLoaded', async () => {
                         document.getElementById('statGrad').innerText = formatEnergy(energies.gradEnergy);
                         document.getElementById('statRot').innerText = formatEnergy(energies.rotEnergy);
                         document.getElementById('statHarm').innerText = formatEnergy(energies.harmEnergy);
+
+                        // Calculate Orthogonality Check (inner product of grad and rot flow)
+                        let orthoCheck = 0;
+                        if (resultDto && resultDto.outgoingSimulationResultEdges) {
+                            resultDto.outgoingSimulationResultEdges.forEach(edge => {
+                                orthoCheck += edge.outgoingEdgeResultGradient * edge.outgoingEdgeResultRotational;
+                            });
+                        }
+
+                        // Calculate Curvature Ratio
+                        let rotRatio = 0;
+                        if (energies.totalEnergy > 0) {
+                            rotRatio = (energies.rotEnergy / energies.totalEnergy) * 100;
+                        }
+
+                        document.getElementById('statOrtho').innerText = orthoCheck.toExponential(2);
+                        document.getElementById('statRatio').innerText = rotRatio.toFixed(1) + '%';
                     }
                 } catch (e) {
                     console.error("Decomposition failed.", e);
