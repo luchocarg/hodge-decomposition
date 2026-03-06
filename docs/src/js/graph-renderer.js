@@ -33,8 +33,9 @@ export class GraphRenderer {
                     hover: '#94a3b8',
                 },
                 arrows: {
-                    to: { enabled: true, scaleFactor: 0.6, type: 'vee' } // 'vee' shape at the end node
+                    to: { enabled: true, scaleFactor: 0.6, type: 'vee' }, // 'vee' shape at the end node
                 },
+                endPointOffset: { to: 8 },
                 font: {
                     color: '#f8fafc',
                     size: 14,
@@ -362,6 +363,7 @@ export class GraphRenderer {
                     width: thickness,
                     color: renderedColor,
                     arrows: { to: { enabled: true, scaleFactor: Math.max(0.4, 3 / thickness), type: 'vee' } },
+                    endPointOffset: { to: Math.max(8, thickness * 2) }, // Pull the line back dynamically based on thickness
                     title: title,
                     label: undefined, // ensure label is hidden
                     // Custom properties for switching layers
@@ -451,6 +453,7 @@ export class GraphRenderer {
                     id: edgeId,
                     width: thickness,
                     arrows: { to: { enabled: true, scaleFactor: Math.max(0.4, 3 / thickness), type: 'vee' } },
+                    endPointOffset: { to: Math.max(8, thickness * 2) },
                     color: { color: targetColor, highlight: targetColor }
                 });
             }
