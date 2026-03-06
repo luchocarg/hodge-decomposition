@@ -33,7 +33,7 @@ export class GraphRenderer {
                     hover: '#94a3b8',
                 },
                 arrows: {
-                    to: { enabled: false } // Removed arrows, direction shown by color later
+                    to: { enabled: true, scaleFactor: 0.6, type: 'vee' } // 'vee' shape at the end node
                 },
                 font: {
                     color: '#f8fafc',
@@ -361,6 +361,7 @@ export class GraphRenderer {
                     id: edge.id,
                     width: thickness,
                     color: renderedColor,
+                    arrows: { to: { enabled: true, scaleFactor: Math.max(0.4, 3 / thickness), type: 'vee' } },
                     title: title,
                     label: undefined, // ensure label is hidden
                     // Custom properties for switching layers
@@ -440,6 +441,7 @@ export class GraphRenderer {
                 updates.push({
                     id: edgeId,
                     width: 1,
+                    arrows: { to: { enabled: true, scaleFactor: 0.8, type: 'vee' } },
                     color: { color: 'rgba(100, 116, 139, 0.2)', highlight: 'rgba(100, 116, 139, 0.5)' }
                 });
             } else {
@@ -448,6 +450,7 @@ export class GraphRenderer {
                 updates.push({
                     id: edgeId,
                     width: thickness,
+                    arrows: { to: { enabled: true, scaleFactor: Math.max(0.4, 3 / thickness), type: 'vee' } },
                     color: { color: targetColor, highlight: targetColor }
                 });
             }
